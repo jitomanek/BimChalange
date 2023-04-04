@@ -1,8 +1,3 @@
 /Server/.vs/
-/Server/Bim.Core/obj/
-/Server/Bim.Tests/bin/
-/Server/Bim.Tests/obj/
-/Server/Bim/bin/
-/Server/Bim/obj/
-/Server/Custom.Lib/bin/
-/Server/Custom.Lib/obj/
+/Server/*/bin/
+/Server/*/obj/

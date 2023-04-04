@@ -18,7 +18,7 @@ try
 
 
     //Application Services
-    builder.Services.AddDbContext<BimContext>(c => c.UseInMemoryDatabase("BimDatabase"));
+    builder.Services.AddDbContext<BimContext>(c => c.UseSqlServer(builder.Configuration.GetConnectionString("BimContext")));
 
     builder.Services.AddTransient<ITaskService, TaskService>();
 
