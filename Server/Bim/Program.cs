@@ -3,65 +3,47 @@ using Bim.Core.Repositories;
 using Bim.Core.Services;
 using Bim.Core.Services.Interface;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
+using Bim;
 
-var builder = WebApplication.CreateBuilder(args);
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen(opt =>
-               {
-                   opt.UseAllOfForInheritance();
-               })
-               .AddSwaggerGenNewtonsoftSupport();
-
-//builder.Services.AddNewtonsoftJson(opt =>
-//{
-//    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver { NamingStrategy = new CamelCaseNamingStrategy { ProcessDictionaryKeys = false } };
-//    opt.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-//    opt.SerializerSettings.Converters.Add(new StringEnumConverter());
-//});
-
-
-
-
-
-builder.Services.AddDbContext<BimContext>(c=>c.UseInMemoryDatabase("BimDatabase"));
-
-builder.Services.AddTransient<ITaskService, TaskService>();
-
-builder.Services.AddTransient<TaskRepository>();
-
-
-builder.Services.AddCors(opt => {
-    opt.AddPolicy("CorsPolicy", corsBuilder => corsBuilder
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials()
-    .WithOrigins(builder.Configuration.GetSection("CorsOrigins").Get<string[]>()));
-});
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var builder = WebApplication.CreateBuilder(args);
+    var startup = new Startup();
+    startup.ConfigureServices(builder.Services, builder.Configuration);
+
+
+    //Application Services
+    builder.Services.AddDbContext<BimContext>(c => c.UseInMemoryDatabase("BimDatabase"));
+
+    builder.Services.AddTransient<ITaskService, TaskService>();
+
+    builder.Services.AddTransient<TaskRepository>();
+
+
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
+
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception e)
+{
+    logger.Error(e, "Program stopped due to bad configuration");
+}

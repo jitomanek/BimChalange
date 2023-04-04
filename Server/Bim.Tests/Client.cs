@@ -53,7 +53,7 @@ namespace Bim.Tests
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<TaskResponse> TaskGETAsync(int? id)
         {
             return TaskGETAsync(id, System.Threading.CancellationToken.None);
@@ -61,7 +61,7 @@ namespace Bim.Tests
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<TaskResponse> TaskGETAsync(int? id, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -107,14 +107,14 @@ namespace Bim.Tests
                             var objectResponse_ = await ReadObjectResponseAsync<TaskResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
-                                throw new Exception("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                                throw new ArgumentOutOfRangeException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
                         }
                         else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new Exception("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                            throw new ArgumentOutOfRangeException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
                         }
                     }
                     finally
@@ -132,16 +132,16 @@ namespace Bim.Tests
         }
 
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TaskResponse> TaskPUTAsync(TaskCreateRequest body)
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<TaskResponse> TaskPOSTAsync(TaskCreateRequest body)
         {
-            return TaskPUTAsync(body, System.Threading.CancellationToken.None);
+            return TaskPOSTAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TaskResponse> TaskPUTAsync(TaskCreateRequest body, System.Threading.CancellationToken cancellationToken)
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<TaskResponse> TaskPOSTAsync(TaskCreateRequest body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Task");
@@ -154,7 +154,95 @@ namespace Bim.Tests
                 {
                     var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
                     var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TaskResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArgumentOutOfRangeException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArgumentOutOfRangeException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArgumentOutOfRangeException<System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>>>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ArgumentOutOfRangeException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>Success</returns>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<TaskResponse> TaskPUTAsync(TaskUpdateRequest body)
+        {
+            return TaskPUTAsync(body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<TaskResponse> TaskPUTAsync(TaskUpdateRequest body, System.Threading.CancellationToken cancellationToken)
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Task");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
+                    var content_ = new System.Net.Http.StringContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
@@ -185,92 +273,24 @@ namespace Bim.Tests
                             var objectResponse_ = await ReadObjectResponseAsync<TaskResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
-                                throw new Exception("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                                throw new ArgumentOutOfRangeException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
                         }
                         else
+                        if (status_ == 400)
                         {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new Exception("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TaskResponse> TaskPATCHAsync(TaskUpdateRequest body)
-        {
-            return TaskPATCHAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TaskResponse> TaskPATCHAsync(TaskUpdateRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Task");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
-                    var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PATCH");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<TaskResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
-                                throw new Exception("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                                throw new ArgumentOutOfRangeException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            return objectResponse_.Object;
+                            throw new ArgumentOutOfRangeException<System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>>>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new Exception("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                            throw new ArgumentOutOfRangeException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
                         }
                     }
                     finally
@@ -288,7 +308,7 @@ namespace Bim.Tests
         }
 
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task TaskDELETEAsync(int? id)
         {
             return TaskDELETEAsync(id, System.Threading.CancellationToken.None);
@@ -296,7 +316,7 @@ namespace Bim.Tests
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task TaskDELETEAsync(int? id, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -343,7 +363,7 @@ namespace Bim.Tests
                         else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new Exception("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                            throw new ArgumentOutOfRangeException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
                         }
                     }
                     finally
@@ -361,7 +381,7 @@ namespace Bim.Tests
         }
 
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<TaskResponseDataTableReply> TasksAsync(TaskTableRequest body)
         {
             return TasksAsync(body, System.Threading.CancellationToken.None);
@@ -369,7 +389,7 @@ namespace Bim.Tests
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
-        /// <exception cref="Exception">A server side error occurred.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<TaskResponseDataTableReply> TasksAsync(TaskTableRequest body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -383,7 +403,7 @@ namespace Bim.Tests
                 {
                     var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
                     var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
@@ -414,14 +434,14 @@ namespace Bim.Tests
                             var objectResponse_ = await ReadObjectResponseAsync<TaskResponseDataTableReply>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
-                                throw new Exception("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                                throw new ArgumentOutOfRangeException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
                         }
                         else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new Exception("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                            throw new ArgumentOutOfRangeException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
                         }
                     }
                     finally
@@ -471,7 +491,7 @@ namespace Bim.Tests
                 catch (Newtonsoft.Json.JsonException exception)
                 {
                     var message = "Could not deserialize the response body string as " + typeof(T).FullName + ".";
-                    throw new Exception(message, (int)response.StatusCode, responseText, headers, exception);
+                    throw new ArgumentOutOfRangeException(message, (int)response.StatusCode, responseText, headers, exception);
                 }
             }
             else
@@ -490,7 +510,7 @@ namespace Bim.Tests
                 catch (Newtonsoft.Json.JsonException exception)
                 {
                     var message = "Could not deserialize the response body stream as " + typeof(T).FullName + ".";
-                    throw new Exception(message, (int)response.StatusCode, string.Empty, headers, exception);
+                    throw new ArgumentOutOfRangeException(message, (int)response.StatusCode, string.Empty, headers, exception);
                 }
             }
         }
@@ -544,13 +564,11 @@ namespace Bim.Tests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class DataTableFilter
     {
-        [Newtonsoft.Json.JsonProperty("propName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string PropName { get; set; }
-
         [Newtonsoft.Json.JsonProperty("propValue", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string PropValue { get; set; }
 
         [Newtonsoft.Json.JsonProperty("filterType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public FilterType FilterType { get; set; }
 
     }
@@ -559,19 +577,26 @@ namespace Bim.Tests
     public enum FilterType
     {
 
-        _1 = 1,
+        [System.Runtime.Serialization.EnumMember(Value = @"Equals")]
+        Equals = 0,
 
-        _2 = 2,
+        [System.Runtime.Serialization.EnumMember(Value = @"NotEquals")]
+        NotEquals = 1,
 
-        _3 = 3,
+        [System.Runtime.Serialization.EnumMember(Value = @"StartsWith")]
+        StartsWith = 2,
 
-        _4 = 4,
+        [System.Runtime.Serialization.EnumMember(Value = @"EndsWith")]
+        EndsWith = 3,
 
-        _5 = 5,
+        [System.Runtime.Serialization.EnumMember(Value = @"Contains")]
+        Contains = 4,
 
-        _6 = 6,
+        [System.Runtime.Serialization.EnumMember(Value = @"Flags")]
+        Flags = 5,
 
-        _7 = 7,
+        [System.Runtime.Serialization.EnumMember(Value = @"MultiEqual")]
+        MultiEqual = 6,
 
     }
 
@@ -579,8 +604,8 @@ namespace Bim.Tests
     public partial class TaskCreateRequest
     {
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        [System.ComponentModel.DataAnnotations.StringLength(128)]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(128, MinimumLength = 1)]
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -591,6 +616,8 @@ namespace Bim.Tests
         public int Priority { get; set; }
 
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public TaskStatusEnum Status { get; set; }
 
     }
@@ -611,6 +638,7 @@ namespace Bim.Tests
         public int Priority { get; set; }
 
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public TaskStatusEnum Status { get; set; }
 
     }
@@ -630,29 +658,20 @@ namespace Bim.Tests
     public enum TaskStatusEnum
     {
 
-        _0 = 0,
+        [System.Runtime.Serialization.EnumMember(Value = @"Initial")]
+        Initial = 0,
 
-        _1 = 1,
+        [System.Runtime.Serialization.EnumMember(Value = @"InProgress")]
+        InProgress = 1,
 
-        _2 = 2,
+        [System.Runtime.Serialization.EnumMember(Value = @"Complete")]
+        Complete = 2,
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class TaskTableRequest
     {
-        [Newtonsoft.Json.JsonProperty("countOnPage", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int CountOnPage { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("pageIndex", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int PageIndex { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("numberOfPages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int NumberOfPages { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("filterArray", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<DataTableFilter> FilterArray { get; set; }
-
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public DataTableFilter Name { get; set; }
 
@@ -665,26 +684,20 @@ namespace Bim.Tests
         [Newtonsoft.Json.JsonProperty("priority", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public DataTableFilter Priority { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("countOnPage", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int CountOnPage { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("pageIndex", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int PageIndex { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("numberOfPages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int NumberOfPages { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class TaskUpdateRequest
+    public partial class TaskUpdateRequest : TaskCreateRequest
     {
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        [System.ComponentModel.DataAnnotations.StringLength(128)]
-        public string Name { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [System.ComponentModel.DataAnnotations.StringLength(256)]
-        public string Description { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("priority", Required = Newtonsoft.Json.Required.Always)]
-        public int Priority { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Always)]
-        public TaskStatusEnum Status { get; set; }
-
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
 
@@ -693,7 +706,7 @@ namespace Bim.Tests
 
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Exception : System.Exception
+    public partial class ArgumentOutOfRangeException : System.Exception
     {
         public int StatusCode { get; private set; }
 
@@ -701,7 +714,7 @@ namespace Bim.Tests
 
         public System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> Headers { get; private set; }
 
-        public Exception(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Exception innerException)
+        public ArgumentOutOfRangeException(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Exception innerException)
             : base(message + "\n\nStatus: " + statusCode + "\nResponse: \n" + ((response == null) ? "(null)" : response.Substring(0, response.Length >= 512 ? 512 : response.Length)), innerException)
         {
             StatusCode = statusCode;
@@ -716,11 +729,11 @@ namespace Bim.Tests
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Exception<TResult> : Exception
+    public partial class ArgumentOutOfRangeException<TResult> : ArgumentOutOfRangeException
     {
         public TResult Result { get; private set; }
 
-        public Exception(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, TResult result, System.Exception innerException)
+        public ArgumentOutOfRangeException(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, TResult result, System.Exception innerException)
             : base(message, statusCode, response, headers, innerException)
         {
             Result = result;

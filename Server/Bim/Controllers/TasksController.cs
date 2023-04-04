@@ -3,7 +3,6 @@ using Bim.Core.Services.Interface;
 
 using Custom.Lib.Models.Repository;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bim.Controllers

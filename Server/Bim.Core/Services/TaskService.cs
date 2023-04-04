@@ -41,7 +41,6 @@ namespace Bim.Core.Services
             if (data != null && data.Status != TaskStatusEnum.Complete)
             {
                 data.Update(model);
-
                 await _taskRepository.SaveChanges();
             }
 
@@ -57,6 +56,7 @@ namespace Bim.Core.Services
                 var taskSet = _taskRepository.GetDbSet<TaskEntity>();
 
                 taskSet.Remove(orig);
+                await _taskRepository.SaveChanges();
             }
 
         }

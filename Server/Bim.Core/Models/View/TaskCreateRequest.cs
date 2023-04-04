@@ -12,6 +12,7 @@ namespace Bim.Core.Models.View
         [MaxLength(256)]
         public string Description { get; set; }
         [Required]
+        [Range(1,5)]
         public int? Priority { get; set; }
         [Required]
         public TaskStatusEnum? Status { get; set; }

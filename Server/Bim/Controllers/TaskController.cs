@@ -26,9 +26,9 @@ namespace Bim.Controllers
             return Ok(data);
         }
 
-        [HttpPut]
+        [HttpPost]
         [ProducesResponseType(typeof(TaskResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(IDictionary<string,string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] TaskCreateRequest model)
         {
             if (ModelState.IsValid)
@@ -41,9 +41,9 @@ namespace Bim.Controllers
             return BadRequest(ModelState.GetStateErrors());
         }
 
-        [HttpPatch]
+        [HttpPut]
         [ProducesResponseType(typeof(TaskResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody] TaskUpdateRequest model)
         {
             if (ModelState.IsValid)
