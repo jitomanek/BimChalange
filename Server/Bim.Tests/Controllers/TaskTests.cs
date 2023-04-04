@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bim.Tests.Controllers
 {
-    [TestClass]
-    public class TaskTests
+    public partial class TaskTests
     {
 
         #region DynamicTestData

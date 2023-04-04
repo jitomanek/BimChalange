@@ -1,10 +1,10 @@
 ﻿namespace Bim.Tests.Controllers
 {
     [TestClass]
-    public class TasksTests
+    public partial class TaskTests
     {
 
-        protected static object[] createData
+        protected static object[] createTableData
         {
             get
             {
@@ -60,15 +60,15 @@
 
 
         [TestMethod]
-        [DynamicData(nameof(createData))]
-        public async Task CreateData(TaskCreateRequest model)
+        [DynamicData(nameof(createTableData))]
+        public async Task ZCreateData(TaskCreateRequest model)
         {
             await Initializer._client.TaskPOSTAsync(model);
         }
 
         [TestMethod]
         [DynamicData(nameof(tableData))]
-        public async Task TableTest(TaskTableRequest model, int? expectedCount)
+        public async Task ZTableTest(TaskTableRequest model, int? expectedCount)
         {
             try
             {
