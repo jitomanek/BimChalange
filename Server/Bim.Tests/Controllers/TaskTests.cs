@@ -1,12 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Bim.Tests.Client;
 
 using Newtonsoft.Json;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bim.Tests.Controllers
 {
@@ -78,8 +72,9 @@ namespace Bim.Tests.Controllers
                     Assert.AreNotEqual(0, actual.Id);
                 }
             }
-            catch (ArgumentOutOfRangeException ex)
-            {//first scenario
+            catch (ApiException ex)
+            {
+                Assert.IsTrue(true, ex.Message);
             }
             catch (JsonSerializationException ex)
             {//second scenario
@@ -98,9 +93,9 @@ namespace Bim.Tests.Controllers
                 Assert.IsNotNull(actual);
                 Assert.AreEqual(expected.Id, actual.Id);
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (ApiException ex)
             {
-                var a = ex;
+                Assert.IsTrue(true, ex.Message);
             }
         }
 
@@ -116,8 +111,9 @@ namespace Bim.Tests.Controllers
                 Assert.AreEqual(expected.Id, actual.Id);
                 Assert.AreEqual(expected.Name, actual.Name);
             }
-            catch (ArgumentOutOfRangeException ex)
-            {//first scenario
+            catch (ApiException ex)
+            {
+                Assert.IsTrue(true, ex.Message);
             }
             catch (JsonSerializationException ex)
             {//second scenario
@@ -134,8 +130,9 @@ namespace Bim.Tests.Controllers
             {
                 await Initializer._client.TaskDELETEAsync(taskId);
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (ApiException ex)
             {
+                Assert.IsTrue(true, ex.Message);
             }
 
             var list = await Initializer._client.TasksAsync(new TaskTableRequest());

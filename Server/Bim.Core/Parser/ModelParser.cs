@@ -7,6 +7,9 @@ namespace Bim.Core.Parser
     {
         public static TaskResponse Parse(this TaskEntity model)
         {
+            if (model == null)
+                return null;
+
             return new TaskResponse
             {
                 Description = model.Description,
@@ -19,21 +22,27 @@ namespace Bim.Core.Parser
 
         public static TaskEntity Parse(this TaskCreateRequest model)
         {
+            if (model == null)
+                return null;
+
             return new TaskEntity
             {
                 Description = model.Description,
                 Name = model.Name,
-                Priority = model.Priority.Value,
-                Status = model.Status.Value
+                Priority = model.Priority ?? 0,
+                Status = model.Status ?? 0
             };
         }
 
         public static void Update(this TaskEntity model, TaskUpdateRequest modelUpdate)
         {
-            model.Description = modelUpdate.Description;
-            model.Name = modelUpdate.Name;
-            model.Status = modelUpdate.Status.Value;
-            model.Priority = modelUpdate.Priority.Value;
+            if (modelUpdate != null)
+            {
+                model.Description = modelUpdate.Description;
+                model.Name = modelUpdate.Name;
+                model.Status = modelUpdate.Status ?? 0;
+                model.Priority = modelUpdate.Priority ?? 0;
+            }
         }
     }
 }

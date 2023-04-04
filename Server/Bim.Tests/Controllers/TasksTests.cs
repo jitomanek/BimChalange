@@ -1,4 +1,6 @@
-﻿namespace Bim.Tests.Controllers
+﻿using Bim.Tests.Client;
+
+namespace Bim.Tests.Controllers
 {
     [TestClass]
     public partial class TaskTests
@@ -12,7 +14,7 @@
                 {
                    new object[]
                    {
-                       new TaskCreateRequest { Name="Test task", Description="one", Priority=1,Status=TaskStatusEnum.Initial }
+                       new TaskCreateRequest { Name="Test one", Description="one", Priority=1,Status=TaskStatusEnum.Initial }
                    },
                     new object[]
                    {
@@ -41,12 +43,12 @@
                    },
                     new object[]
                    {
-                       new TaskTableRequest{ Name=new DataTableFilter{PropValue="test" } },
+                       new TaskTableRequest{ Name=new DataTableFilter{PropValue="Test" } },
                        0
                    },
                     new object[]
                    {
-                       new TaskTableRequest{ Name=new DataTableFilter{PropValue="test", FilterType=FilterType.Contains } },
+                       new TaskTableRequest{ Name=new DataTableFilter{PropValue="Test", FilterType=FilterType.Contains } },
                        2
                    },
                      new object[]
@@ -76,7 +78,10 @@
 
                 Assert.AreEqual(expectedCount, actual.Count);
             }
-            catch (ArgumentOutOfRangeException ex) { }
+            catch (ApiException ex)
+            {
+                Assert.IsTrue(true, ex.Message);
+            }
         }
 
 

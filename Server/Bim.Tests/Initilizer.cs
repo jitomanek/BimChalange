@@ -1,10 +1,12 @@
+using Bim.Tests.Client;
+
 namespace Bim.Tests
 {
     [TestClass]
     internal class Initializer
     {
         public static IServiceProvider _serviceProvider { get; protected set; }
-        public static Client _client { get; protected set; }
+        public static BimClient _client { get; protected set; }
 
         [AssemblyInitialize]
         public static void Init(TestContext context)
@@ -12,7 +14,7 @@ namespace Bim.Tests
             var factory = new TestApplicationFactory();
             var httpClient = factory.CreateDefaultClient();
 
-            _client = new Client(httpClient.BaseAddress.ToString(), httpClient);
+            _client = new BimClient(httpClient.BaseAddress.ToString(), httpClient);
             _serviceProvider = factory.Services;
         }
 
