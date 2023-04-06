@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
 using Bim;
+using Bim.Middleware;
 
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 
@@ -33,11 +34,15 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+    app.UseMiddleware<ErrorHandlerMiddleware>();
+
 
     app.UseHttpsRedirection();
+    app.UseRouting();
+
+    app.UseCors("CorsPolicy");
 
     app.UseAuthorization();
-
     app.MapControllers();
 
     app.Run();
