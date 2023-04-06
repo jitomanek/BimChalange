@@ -3,35 +3,54 @@ import {
     decoratorsTable,
     FilterTypeTable,
 } from 'kantar-react-lib'
+import {FaTrashAlt, FaPen} from 'react-icons/fa'
 
-import { DataTableFilter, FilterType, TaskResponseDataTableReply, TaskTableRequest } from '../../clients/client.generated'
+import { DataTableFilter, FilterType, TaskResponse, TaskResponseDataTableReply, TaskTableRequest } from '../../clients/client.generated'
 import { Client } from '../../clients/client'
+import { statusOptions_Table, priorityOptions } from '../../utils/task.util'
+import { useState } from 'react'
+import { UpdateModal } from '../forms/update.task.modal'
+import { DeleteModal } from '../forms/delete.task.modal'
+
+
+const { display } = decoratorsTable
+
+class ClientModel extends Client {
+    request = this.apiTasks
+}
+const clientTable = new ClientModel()
+
+
+
 
 export const TaskTable: React.FC = () => {
+    const [updateFormId, setUpdateFormId] = useState(
+        undefined as (number | undefined)
+    )
+    const [deleteFormId, setDeleteFormId] = useState(
+        undefined as (number | undefined)
+    )
 
-    const { display } = decoratorsTable
-
-    class ClientModel extends Client {
-        request = this.apiTasks
-    }
-    const clientTable = new ClientModel()
-
-    //TODO: add generic typy for value in DataTableFilter on BE
-    const statusOptions: any[] =
-        //Object.keys(TaskStatusEnum).map(k => ({ text: k, value: (TaskStatusEnum as any)[k] }));
-        [
-            { text: 'Initial', value: '1' },
-            { text: 'In progress', value: '2' },
-            { text: 'Completed', value: '3' },
+    const customClickable = () => {
+        return [
+            {
+                htmlElement:<FaPen /> ,//<a>Update</a>,
+                onClick: (m: any) => {
+                    console.log('Update click: ', m)
+                    const model = m as TaskResponse
+                    setUpdateFormId(model.id as number)
+                }
+            },
+            {
+                htmlElement: <FaTrashAlt className='text-danger'/>,//<a>Delete</a>,
+                onClick: (m: any) => {
+                    console.log('Delete click: ', m)
+                    const model = m as TaskResponse
+                    setDeleteFormId(model.id as number)
+                }
+            }
         ]
-
-    const priorityOptions: any[] = [
-        { text: '1', value: '1' },
-        { text: '2', value: '2' },
-        { text: '3', value: '3' },
-        { text: '4', value: '4' },
-        { text: '5', value: '5' }
-    ]
+    }
 
 
     class DTFHelp extends DataTableFilter {
@@ -48,15 +67,35 @@ export const TaskTable: React.FC = () => {
         @display('Description')
         description?: DataTableFilter = new DTFHelp(FilterType.Contains)
 
-        @display('Status', false, FilterTypeTable.selectMulti, statusOptions as any)
+        @display('Status', false, FilterTypeTable.selectMulti, statusOptions_Table as any)
         status?: DataTableFilter = new DTFHelp(FilterType.MultiEqual)
 
         @display('Priority', false, FilterTypeTable.selectMulti, priorityOptions)
         priority?: DataTableFilter = new DTFHelp(FilterType.MultiEqual)
+
+        @display('Actions', false, undefined, undefined, undefined, customClickable())
+        update: DataTableFilter = new DTFHelp(FilterType.Equals)
     }
+
 
     return (
         <div>
+
+
+            {updateFormId === undefined ? undefined : <UpdateModal
+                id={updateFormId}
+                show={true}
+                onHide={() => setUpdateFormId(undefined)}
+                afterSubmit={() => setUpdateFormId(undefined)}
+            />}
+
+            {deleteFormId === undefined ? undefined : <DeleteModal
+                id={deleteFormId}
+                show={true}
+                onHide={() => setDeleteFormId(undefined)}
+                afterSubmit={() => setDeleteFormId(undefined)}
+            />}
+
             <Table<TaskTableModel, TaskResponseDataTableReply>
                 client={clientTable}
                 header={new TaskTableModel()}
