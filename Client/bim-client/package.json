@@ -10,7 +10,6 @@
     "@types/node": "^16.18.23",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
-    "kantar-react-lib": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -42,6 +41,7 @@
     ]
   },
   "devDependencies": {
+    "kantar-react-lib": "^1.0.4",
     "react-icons": "^4.8.0",
     "sass": "^1.60.0"
   }
